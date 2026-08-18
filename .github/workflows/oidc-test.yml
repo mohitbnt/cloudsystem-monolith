@@ -17,7 +17,8 @@ jobs:
           role-to-assume: ${{ vars.OIDC_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
           role-session-name: oidc-test
-          audience: https://github.com
+          audience: https://githubusercontent.com
+
       - name: Verify authentication success
         run: |
           aws sts get-caller-identity
