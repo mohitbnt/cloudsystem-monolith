@@ -21,6 +21,7 @@ source "amazon-ebs" "medusa-ubuntu" {
     most_recent = true
     owners      = ["099720109477"]
   }
+}
 
   build {
     sources = ["source.amazon-ebs.medusa-ubuntu"]
