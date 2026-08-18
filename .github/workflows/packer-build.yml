@@ -20,7 +20,7 @@ jobs:
           role-to-assume: ${{ vars.OIDC_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
           role-session-name: packer-build
-          audience: https://github.com
+          audience: sts.amazonaws.com
 
       - name: Setup Packer
         uses: hashicorp/setup-packer@v3
