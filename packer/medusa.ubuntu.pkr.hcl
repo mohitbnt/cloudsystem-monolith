@@ -27,7 +27,7 @@ source "amazon-ebs" "medusa-ubuntu" {
     sources = ["source.amazon-ebs.medusa-ubuntu"]
 
     provisioner "shell" {
-      script = [
+      scripts = [
         "scripts/setup-deps.sh"
       ]    
     }
