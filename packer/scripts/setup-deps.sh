@@ -7,13 +7,14 @@ set -e
 # 1. Set Non-Interactive Environment
 # ==============================================================================
 export DEBIAN_FRONTEND=noninteractive
+export NEEDRESTART_MODE=a  # HIGHLIGHT: Automatically restarts services without menus
 
 echo "=== 2. Updating System Packages ==="
-sudo apt-get update -y
-sudo apt-get upgrade -y
+sudo -E apt-get update -y
+sudo -E apt-get upgrade -y -o Dpkg::Options::="--force-confold" --with-new-pkgs
 
 echo "=== 3. Installing Base Utilities ==="
-sudo apt-get install -y \
+sudo -E apt-get install -y \
     curl \
     git \
     build-essential \
@@ -23,12 +24,12 @@ sudo apt-get install -y \
 
 echo "=== 4. Installing Node.js (v20 LTS) ==="
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt-get install -y nodejs
+sudo -E apt-get install -y nodejs
 echo "Verified Node version: $(node -v)"
 echo "Verified npm version: $(npm -v)"
 
 echo "=== 5. Installing Nginx ==="
-sudo apt-get install -y nginx
+sudo -E apt-get install -y nginx
 sudo systemctl enable nginx
 
 echo "=== 6. Installing AWS Tools ==="
