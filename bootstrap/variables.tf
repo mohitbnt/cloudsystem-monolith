@@ -24,7 +24,6 @@ variable "bucket_name" {
 variable "github_repo_path" {
   type        = string
   description = "Path to the Github repository"
-  default     = "mohitbnt/docker-production-stack"
 }
 
 variable "github_branch" {
