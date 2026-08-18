@@ -1,0 +1,22 @@
+name: AWS OIDC Authentication Test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  oidc-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: {{vars.OIDC_ROLE_ARN}}
+          aws-region: {{vars.AWS_REGION}}
+          role-session-name: oidc-test
+      - name: Verify authentication success
+        run: |
+          aws sts get-caller-identity

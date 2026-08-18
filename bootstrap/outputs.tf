@@ -4,6 +4,6 @@ output "bucket_name" {
 }
 
 # Output the name of the role
-output "role_name" {
-  value = aws_iam_role.github_actions_role.name
+output "oidc_role_arn" {
+  value = aws_iam_role.github_actions_role.arn
 }
