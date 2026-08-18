@@ -1,0 +1,34 @@
+name: Packer Golden Image Build
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  packer-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Configure AWS Credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.OIDC_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          role-session-name: packer-build
+          audience: https://github.com
+
+      - name: Setup Packer
+        uses: hashicorp/setup-packer@v3
+        with:
+          version: latest
+
+      - name: Build Golden Image
+        working-directory: ./packer
+        run: |
+          packer init medusa.ubuntu.pkr.hcl
+          packer validate medusa.ubuntu.pkr.hcl
+          packer build -machine-readable medusa.ubuntu.pkr.hcl | tee build.log
