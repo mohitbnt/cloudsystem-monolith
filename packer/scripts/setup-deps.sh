@@ -32,23 +32,25 @@ echo "=== 5. Installing Nginx ==="
 sudo -E apt-get install -y nginx
 sudo systemctl enable nginx
 
-echo "=== 6. Installing AWS Tools ==="
+echo "=== 6. Installing AWS CLI ==="
 # Install AWS CLI v2
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 unzip -q awscliv2.zip
 sudo ./aws/install --update
 rm -rf awscliv2.zip aws
 
-# Ensure AWS SSM Agent is active
-if systemctl list-unit-files | grep -q ssm-agent; then
-    sudo systemctl enable amazon-ssm-agent
+echo "===7. Managing SSM Agent Service ==="
+if systemctl list-unit-files | grep -q "^amazon-ssm-agent.service"; then
+    sudo systemctl enable --now amazon-ssm-agent.service
+elif systemctl list-unit-files | grep -q "^snap.amazon-ssm-agent.amazon-ssm-agent.service"; then
+    sudo systemctl enable --now snap.amazon-ssm-agent.amazon-ssm-agent.service
 else
-    echo "SSM Agent not found. Installing snap version..."
+    echo "SSM agent service unit not found. Installing via snap..."
     sudo snap install amazon-ssm-agent --classic
-    sudo systemctl enable snap.amazon-ssm-agent.amazon-ssm-agent.service
+    sudo systemctl enable --now snap.amazon-ssm-agent.amazon-ssm-agent.service
 fi
 
-echo "=== 7. Creating Application Directory & System User ==="
+echo "=== 8. Creating Application Directory & System User ==="
 sudo mkdir -p /var/www/medusa
 sudo chown -R ubuntu:ubuntu /var/www/medusa
 
