@@ -16,7 +16,7 @@ variable "project" {
 variable "bucket_name" {
   type        = string
   description = "Name of the bucket"
-  default     = "cloud-medusa-monolith-terraform-state"
+  default     = "repo-tfstate"
 }
 
 # Variabled for OIDC configuration
