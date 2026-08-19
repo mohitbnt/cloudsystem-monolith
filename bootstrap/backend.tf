@@ -1,6 +1,6 @@
 # Create a S3 bucket for Terraform state with locking enabled
 resource "aws_s3_bucket" "terraform_state" {
-  bucket = "cloud-medusa-monolith-terraform-state"
+  bucket = var.bucket_name
   tags = {
     Name    = var.bucket_name
     Project = var.project
