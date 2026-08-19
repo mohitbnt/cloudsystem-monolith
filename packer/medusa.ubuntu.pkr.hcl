@@ -10,7 +10,7 @@ packer {
 source "amazon-ebs" "medusa-ubuntu" {
   ami_name      = "medusa-golden-image-${formatdate("YYYY-MM-DD-hhmm", timestamp())}"
   instance_type = "t3.micro"
-  region        = "us-east-1"
+  region        = "ap-south-1"
   ssh_username  = "ubuntu"
   source_ami_filter {
     filters = {
