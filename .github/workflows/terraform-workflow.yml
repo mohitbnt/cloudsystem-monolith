@@ -14,7 +14,7 @@ jobs:
     env:
       # Terraform automatically maps these to your variables
       TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      TF_VAR_cloudflare_zone_id:   ${{ vars.CLOUDFLARE_ZONE_ID }}
+      TF_VAR_cloudflare_zone_id:   ${{ secrets.CLOUDFLARE_ZONE_ID }}
       TF_VAR_golden_ami_id:        ${{ vars.GOLDEN_AMI_ID }}
       TF_VAR_environment:          ${{ vars.ENVIRONMENT }}
 
