@@ -33,10 +33,10 @@ jobs:
         run: |
           packer init medusa.ubuntu.pkr.hcl
           packer validate medusa.ubuntu.pkr.hcl
-          packer build -machine-readable medusa.ubuntu.pkr.hcl | tee build.log
+          packer build -color=false -machine-readable medusa.ubuntu.pkr.hcl | tee build.log
           
           # Extract AMI ID and push to AWS SSM Parameter Store
-          AMI_ID=$(grep -E "{{ var.AWS_REGION }}" build.log | awk -F ':' '{print $2}' | awk -F '"' '{print $2}')
+          AMI_ID=$(grep 'artifact,0,id' build.log | cut -d, -f6 | cut -d: -f2)
           echo "Generated AMI ID: $AMI_ID"
           
           echo "ami_id=$AMI_ID" >> $GITHUB_OUTPUT
@@ -45,9 +45,4 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.TOKEN_GITHUB }}
         run: |
-          gh api \
-          --method PATCH \
-          -H "Accept: application/vnd.github+json" \
-          -H "X-GitHub-Api-Version: 2022-11-28" \
-          /repos/${{ github.repository }}/actions/variables/TF_VARS_golden_ami_id \
-          -f value="${{ steps.packer-build.outputs.ami_id }}"
+          gh variable set TF_VARS_golden_ami_id --repo ${{ github.repository }} --body "${{ steps.packer-build.outputs.ami_id }}"
