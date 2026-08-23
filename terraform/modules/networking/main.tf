@@ -1,0 +1,112 @@
+# Create VPC
+resource "aws_vpc" "main_vpc" {
+    cidr_block           = var.vpc_cidr
+    enable_dns_hostnames = true
+    enable_dns_support   = true
+
+    tags = merge(var.common_tags, {
+        Name = "${var.project_name}-${var.environment}-vpc"
+    })
+}
+
+# Create public subnets
+resource "aws_subnet" "public_subnets" {
+    count                   = length(var.public_subnet_cidrs)
+    vpc_id                  = aws_vpc.main_vpc.id
+    cidr_block              = var.public_subnet_cidrs[count.index]
+    availability_zone       = data.aws_availability_zones.available.names[count.index]
+    map_public_ip_on_launch = true
+
+    tags = merge(var.common_tags, {
+        Name = "${var.project_name}-${var.environment}-public-subnet-${count.index}"
+    })
+}
+
+# Create private subnets
+resource "aws_subnet" "private_subnets" {
+    count                   = length(var.private_subnet_cidrs)
+    vpc_id                  = aws_vpc.main_vpc.id
+    cidr_block              = var.private_subnet_cidrs[count.index]
+    availability_zone       = data.aws_availability_zones.available.names[count.index]
+    map_public_ip_on_launch = false
+
+    tags = merge(var.common_tags, {
+        Name = "${var.project_name}-${var.environment}-private-subnet-${count.index}"
+    })
+}
+
+# Create Internet Gateway
+resource "aws_internet_gateway" "main_igw" {
+    vpc_id = aws_vpc.main_vpc.id
+
+    tags = merge(var.common_tags, {
+        Name = "${var.project_name}-${var.environment}-igw"
+    })
+}
+
+# Create public route table
+resource "aws_route_table" "public_route_table" {
+    vpc_id = aws_vpc.main_vpc.id
+
+    tags = merge(var.common_tags, {
+        Name = "${var.project_name}-${var.environment}-public-route-table"
+    })
+}
+
+# Create public route
+resource "aws_route" "public_route" {
+    route_table_id         = aws_route_table.public_route_table.id
+    destination_cidr_block = "0.0.0.0/0"
+    gateway_id             = aws_internet_gateway.main_igw.id
+}
+
+# Associate public route table with public subnets
+resource "aws_route_table_association" "public_subnet_association" {
+    count                  = length(var.public_subnet_cidrs)
+    subnet_id              = aws_subnet.public_subnets[count.index].id
+    route_table_id         = aws_route_table.public_route_table.id
+}
+
+# Create private route table
+resource "aws_route_table" "private_route_table" {
+    vpc_id = aws_vpc.main_vpc.id
+
+    tags = merge(var.common_tags, {
+        Name = "${var.project_name}-${var.environment}-private-route-table"
+    })
+}
+
+# Associate private route table with private subnets
+resource "aws_route_table_association" "private_subnet_association" {
+    count          = length(var.private_subnet_cidrs)
+    subnet_id      = aws_subnet.private_subnets[count.index].id
+    route_table_id = aws_route_table.private_route_table.id
+}
+
+# Create S3 VPC endpoint
+resource "aws_vpc_endpoint" "s3_vpc_endpoint" {
+    vpc_id              = aws_vpc.main_vpc.id
+    service_name        = "com.amazonaws.${var.region}.s3"
+    vpc_endpoint_type   = "Gateway"
+    route_table_ids     = [aws_route_table.private_route_table.id]
+
+    tags = merge(var.common_tags, {
+        Name = "${var.project_name}-${var.environment}-s3-vpc-endpoint"
+    })
+}
+
+# Create Interface VPC endpoint for SSM
+resource "aws_vpc_endpoint" "ssm_vpc_endpoint" {
+    vpc_id              = aws_vpc.main_vpc.id
+    for_each = local.interface_endpoints
+    service_name        = each.value
+    vpc_endpoint_type   = "Interface"
+    security_group_ids  = [var.vpc_endpoint_sg_id]
+    subnet_ids          = aws_subnet.public_subnets[*].id
+    private_dns_enabled = true
+
+    tags = merge(var.common_tags, {
+        Name = "${var.project_name}-${var.environment}-ssm-vpc-endpoint"
+    })
+}
+
