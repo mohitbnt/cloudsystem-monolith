@@ -5,8 +5,6 @@ environment = "production"
 
 project_name = "cm"
 
-cloudflare_api_token = ""
-cloudflare_zone_id   = ""
 domain_name          = "cloudsystemonline.com"
 
 vpc_cidr             = "10.0.0.0/16"
@@ -14,8 +12,6 @@ public_subnet_cidrs  = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
 private_subnet_cidrs = ["10.0.21.0/24", "10.0.22.0/24", "10.0.23.0/24"]
 
 store_bucket_name = "cloudsystem-monolith-uploads-prod"
-
-golden_ami_id = ""
 
 app_instance_config = {
   instance_type             = "t3.micro"

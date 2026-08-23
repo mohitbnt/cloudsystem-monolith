@@ -5,8 +5,6 @@ environment = "development"
 
 project_name = "cm"
 
-cloudflare_api_token = ""
-cloudflare_zone_id   = ""
 domain_name          = "dev.cloudsystemonline.com"
 
 vpc_cidr             = "10.0.0.0/16"
@@ -14,8 +12,6 @@ public_subnet_cidrs  = ["10.0.11.0/24", "10.0.12.0/24", "10.0.13.0/24"]
 private_subnet_cidrs = ["10.0.31.0/24", "10.0.32.0/24", "10.0.33.0/24"]
 
 store_bucket_name = "cloudsystem-monolith-dev"
-
-golden_ami_id = "ami-07e5ce642bbc48c0d"
 
 app_instance_config = {
   instance_type             = "t3.micro"
