@@ -1,6 +1,6 @@
 # Create a target group for the ALB
 resource "aws_lb_target_group" "alb_target_group" {
-  name        = "${var.project_name}-${var.environment}-alb-target-group"
+  name        = "${var.project_name}-${var.environment}-tg"
   port        = 80
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
@@ -22,7 +22,7 @@ resource "aws_lb_target_group" "alb_target_group" {
   tags = merge(
     var.common_tags,
     {
-      Name = "${var.project_name}-${var.environment}-alb-target-group"
+      Name = "${var.project_name}-${var.environment}-tg"
     }
   )
 }

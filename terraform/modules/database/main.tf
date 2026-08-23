@@ -20,7 +20,7 @@ resource "aws_db_subnet_group" "db_subnet_group" {
 
 # Create a parameter group for the PostgreSQL database
 resource "aws_db_parameter_group" "db_parameter_group" {
-  name        = "${var.project_name}-${var.environment}-db-parameter-group"
+  name        = "${var.project_name}-${var.environment}-pg"
   family      = var.db_instance_config.family
   description = "Parameter group for PostgreSQL database"
 
@@ -37,14 +37,14 @@ resource "aws_db_parameter_group" "db_parameter_group" {
   tags = merge(
     var.common_tags,
     {
-      Name = "${var.project_name}-${var.environment}-db-parameter-group"
+      Name = "${var.project_name}-${var.environment}-pg"
     }
   )
 }
 
 # Create PostgreSQL database instance
 resource "aws_db_instance" "db_instance" {
-  identifier             = "${var.project_name}-${var.environment}-db-instance"
+  identifier             = "${var.project_name}-${var.environment}-db"
   allocated_storage      = var.db_instance_config.allocated_storage
   storage_type           = "gp2"
   engine                 = "postgres"
@@ -65,7 +65,7 @@ resource "aws_db_instance" "db_instance" {
   tags = merge(
     var.common_tags,
     {
-      Name = "${var.project_name}-${var.environment}-db-instance"
+      Name = "${var.project_name}-${var.environment}-db"
     }
   )
 }

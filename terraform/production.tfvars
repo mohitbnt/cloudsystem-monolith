@@ -3,7 +3,7 @@ region = "ap-south-1"
 
 environment = "production"
 
-project_name = "cloudsystem-monolith"
+project_name = "cm"
 
 cloudflare_api_token = ""
 cloudflare_zone_id   = ""
