@@ -45,4 +45,4 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.TOKEN_GITHUB }}
         run: |
-          gh variable set TF_VARS_golden_ami_id --repo ${{ github.repository }} --body "${{ steps.packer-build.outputs.ami_id }}"
+          gh variable set TF_VAR_golden_ami_id --repo ${{ github.repository }} --body "${{ steps.packer-build.outputs.ami_id }}"
