@@ -1,0 +1,58 @@
+# Create workflow for Terraform
+name: Terraform Workflow
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  terraform-workflow:
+    runs-on: ubuntu-latest
+    env:
+      # Terraform automatically maps these to your variables
+      TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      TF_VAR_cloudflare_zone_id:   ${{ vars.CLOUDFLARE_ZONE_ID }}
+      TF_VAR_golden_ami_id:        ${{ vars.GOLDEN_AMI_ID }}
+      TF_VAR_environment:          ${{ vars.ENVIRONMENT }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.OIDC_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          role-session-name: terraform-workflow
+          audience: sts.amazonaws.com
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: latest # Fixed key name from 'version' to 'terraform_version'
+
+      - name: Terraform Init
+        id: terraform-init
+        working-directory: ./terraform
+        run: |
+          terraform init
+          terraform validate
+
+      - name: Terraform Plan
+        id: terraform-plan
+        working-directory: ./terraform
+        run: |
+          # Variables are automatically injected via env block above
+          terraform plan -var-file="${{ vars.ENVIRONMENT }}.tfvars" -out=plan.out
+          terraform show -json plan.out > plan.json
+
+      - name: Terraform Apply
+        id: terraform-apply
+        working-directory: ./terraform
+        run: |
+          # Only the plan file and auto-approve are needed here
+          terraform apply -auto-approve plan.out
