@@ -62,7 +62,7 @@ data "aws_iam_policy_document" "credentials_policy_document" {
       "secretsmanager:DescribeSecret",
     ]
     resources = [
-      "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:${var.project_name}-secret-*",
+      "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:${var.project_name}-${var.environment}/*",
     ]
   }
   statement {
@@ -73,7 +73,7 @@ data "aws_iam_policy_document" "credentials_policy_document" {
       "ssm:GetParametersByPath"
       ]
     resources = [
-      "arn:aws:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:parameter/${var.project_name}-store/*",
+      "arn:aws:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:parameter/${var.project_name}/*",
     ]
   }
 }
