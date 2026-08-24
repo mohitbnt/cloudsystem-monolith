@@ -29,11 +29,6 @@ resource "aws_db_parameter_group" "db_parameter_group" {
     value = "100"
   }
 
-  parameter {
-    name  = "shared_buffers"
-    value = "256MB"
-  }
-
   tags = merge(
     var.common_tags,
     {
