@@ -1,6 +1,11 @@
 name: Packer Golden Image Build
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'artifacts/*.tar.gz'
   workflow_dispatch:
 
 permissions:
@@ -10,6 +15,7 @@ permissions:
 jobs:
   packer-build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -22,27 +28,79 @@ jobs:
           role-session-name: packer-build
           audience: sts.amazonaws.com
 
+      - name: Find latest WordPress artifact
+        id: artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          artifact="$(find artifacts -maxdepth 1 -type f \
+            -name 'wordpress-*-cloudsystem.tar.gz' \
+            -printf '%f\n' | sort -V | tail -n 1)"
+
+          if [[ -z "$artifact" ]]; then
+            echo "No WordPress artifact found."
+            exit 1
+          fi
+
+          version="${artifact#wordpress-}"
+          version="${version%-cloudsystem.tar.gz}"
+
+          echo "artifact=../artifacts/$artifact" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+          echo "Selected artifact: $artifact"
+          echo "WordPress version: $version"
+
       - name: Setup Packer
         uses: hashicorp/setup-packer@v3
         with:
           version: latest
 
-      - name: Build Golden Image
-        id: packer-build
+      - name: Packer Init
+        working-directory: ./packer
+        run: packer init wordpress.ubuntu.pkr.hcl
+
+      - name: Packer Validate
         working-directory: ./packer
         run: |
-          packer init medusa.ubuntu.pkr.hcl
-          packer validate medusa.ubuntu.pkr.hcl
-          packer build -color=false -machine-readable medusa.ubuntu.pkr.hcl | tee build.log
-          
-          # Extract AMI ID and push to AWS SSM Parameter Store
-          AMI_ID=$(grep 'artifact,0,id' build.log | cut -d, -f6 | cut -d: -f2)
-          echo "Generated AMI ID: $AMI_ID"
-          
-          echo "ami_id=$AMI_ID" >> $GITHUB_OUTPUT
+          packer validate \
+            -var "region=${{ vars.AWS_REGION }}" \
+            -var "instance_type=${{ vars.PACKER_INSTANCE_TYPE }}" \
+            -var "app_version=${{ steps.artifact.outputs.version }}" \
+            -var "wordpress_artifact=${{ steps.artifact.outputs.artifact }}" \
+            wordpress.ubuntu.pkr.hcl
 
-      - name: Push the Golden AMI ID to Github repository variable
+      - name: Build Golden AMI
+        id: packer-build
+        working-directory: ./packer
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          packer build \
+            -color=false \
+            -machine-readable \
+            -var "region=${{ vars.AWS_REGION }}" \
+            -var "instance_type=${{ vars.PACKER_INSTANCE_TYPE }}" \
+            -var "app_version=${{ steps.artifact.outputs.version }}" \
+            -var "wordpress_artifact=${{ steps.artifact.outputs.artifact }}" \
+            wordpress.ubuntu.pkr.hcl | tee build.log
+
+          ami_id="$(awk -F, '$1=="artifact" && $3=="id" {print $4}' build.log | tail -n 1 | cut -d: -f2)"
+
+          if [[ -z "$ami_id" ]]; then
+            echo "Failed to extract AMI ID from Packer output."
+            exit 1
+          fi
+
+          echo "Generated AMI ID: $ami_id"
+          echo "ami_id=$ami_id" >> "$GITHUB_OUTPUT"
+
+      - name: Push Golden AMI ID to GitHub repository variable
         env:
           GH_TOKEN: ${{ secrets.TOKEN_GITHUB }}
         run: |
-          gh variable set GOLDEN_AMI_ID --repo ${{ github.repository }} --body "${{ steps.packer-build.outputs.ami_id }}"
+          gh variable set GOLDEN_AMI_ID \
+            --repo "${{ github.repository }}" \
+            --body "${{ steps.packer-build.outputs.ami_id }}"
