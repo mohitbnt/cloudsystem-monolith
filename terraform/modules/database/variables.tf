@@ -43,15 +43,14 @@ variable "rds_security_group_id" {
 }
 
 variable "db_instance_config" {
-  description = "Configuration for the database instance."
-
+  description = "Database instance configuration"
   type = object({
-    family                 = string
-    allocated_storage      = number
-    engine_version         = string
-    instance_class         = string
-    db_name                = string
-    username               = string
-    multi_az               = bool
+    allocated_storage = number
+    family            = string
+    engine_version    = string
+    instance_class    = string
+    db_name           = string
+    username          = string
+    multi_az          = bool
   })
 }

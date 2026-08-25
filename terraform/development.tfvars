@@ -5,7 +5,7 @@ environment = "development"
 
 project_name = "cm"
 
-domain_name          = "dev.cloudsystemonline.com"
+domain_name = "dev.cloudsystemonline.com"
 
 vpc_cidr             = "10.0.0.0/16"
 public_subnet_cidrs  = ["10.0.11.0/24", "10.0.12.0/24", "10.0.13.0/24"]
@@ -30,15 +30,14 @@ app_instance_config = {
 }
 
 db_instance_config = {
-  family            = "postgres16"
-  allocated_storage = 8
-  engine_version    = "16"
-  instance_class    = "db.t4g.micro"
-  db_name           = "cmm-prod-db"
-  username          = "cmm-prod-user"
+  allocated_storage = 20
+  family            = "mariadb10.11"
+  engine_version    = "10.11"
+  instance_class    = "db.t3.micro"
+  db_name           = "wordpress"
+  username          = "wordpress"
   multi_az          = false
 }
-
 cache_config = {
   engine_version             = "7.1"
   node_type                  = "cache.t4g.micro"
