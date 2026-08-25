@@ -12,22 +12,22 @@ module "networking" {
 }
 
 module "security" {
-  source            = "./modules/security"
-  common_tags       = local.common_tags
-  project_name      = var.project_name
-  environment       = var.environment
-  region            = var.region
-  vpc_id            = module.networking.vpc_id
-  store_bucket_name = module.storage.store_bucket_name
+  source       = "./modules/security"
+  common_tags  = local.common_tags
+  project_name = var.project_name
+  environment  = var.environment
+  region       = var.region
+  vpc_id       = module.networking.vpc_id
+  app_bucket   = module.storage.app_bucket
 }
 
 module "storage" {
-  source            = "./modules/storage"
-  region            = var.region
-  environment       = var.environment
-  project_name      = var.project_name
-  common_tags       = local.common_tags
-  store_bucket_name = var.store_bucket_name
+  source       = "./modules/storage"
+  region       = var.region
+  environment  = var.environment
+  project_name = var.project_name
+  common_tags  = local.common_tags
+  domain_name  = var.domain_name
 }
 
 module "database" {
@@ -60,6 +60,9 @@ module "compute" {
   vpc_endpoint_security_group_id = module.security.vpc_endpoint_security_group_id
   app_instance_config            = var.app_instance_config
   tls_certificate_arn            = module.dns-and-ssl.tls_certificate_arn
+  db_secret_arn                  = module.database.db_secret_arn
+  s3_parameter                   = module.parameters.s3_parameter
+  redis_parameter                = module.parameters.redis_parameter
 }
 
 module "cache" {
@@ -74,13 +77,13 @@ module "cache" {
 }
 
 module "parameters" {
-  source        = "./modules/paramters"
-  common_tags   = local.common_tags
-  region        = var.region
-  environment   = var.environment
-  project_name  = var.project_name
-  redis_url     = module.cache.redis_url
-  golden_ami_id = var.golden_ami_id
+  source         = "./modules/paramters"
+  common_tags    = local.common_tags
+  region         = var.region
+  environment    = var.environment
+  project_name   = var.project_name
+  redis_endpoint = module.cache.redis_endpoint
+  app_bucket     = module.storage.app_bucket
 }
 
 module "dns-and-ssl" {

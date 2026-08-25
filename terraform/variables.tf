@@ -10,6 +10,21 @@ variable "region" {
   }
 }
 
+# Project Environment
+variable "environment" {
+  type        = string
+  description = "Project environment developmet/production"
+  validation {
+    condition     = contains(["development", "production"], var.environment)
+    error_message = "The environment variable must be exactly 'development' or 'production'."
+  }
+}
+# Project Name
+variable "project_name" {
+  description = "Name of the project"
+  type        = string
+}
+
 # Cloudflare API Token
 variable "cloudflare_api_token" {
   description = "Cloudflare API Token"
@@ -25,21 +40,6 @@ variable "cloudflare_zone_id" {
 # Domain Name for the application
 variable "domain_name" {
   description = "Domain name for the application"
-  type        = string
-}
-
-# Project Environment
-variable "environment" {
-  type        = string
-  description = "Project environment developmet/production"
-  validation {
-    condition     = contains(["development", "production"], var.environment)
-    error_message = "The environment variable must be exactly 'development' or 'production'."
-  }
-}
-# Project Name
-variable "project_name" {
-  description = "Name of the project"
   type        = string
 }
 
@@ -77,12 +77,6 @@ variable "private_subnet_cidrs" {
     condition     = alltrue([for cidr in var.private_subnet_cidrs : can(cidrhost(cidr, 0))])
     error_message = "All elements in the public_subnet_cidrs list must be valid IPv4 CIDR blocks."
   }
-}
-
-# S3 Bucket Name
-variable "store_bucket_name" {
-  description = "Name of the S3 bucket to store the website data"
-  type        = string
 }
 
 # Application Instance Configuration

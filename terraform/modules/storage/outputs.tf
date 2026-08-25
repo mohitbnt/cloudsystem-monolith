@@ -1,3 +1,3 @@
-output "store_bucket_name" {
-  value = aws_s3_bucket.store_bucket.id
+output "app_bucket" {
+  value = aws_s3_bucket.app_bucket.id
 }

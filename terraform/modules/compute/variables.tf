@@ -104,3 +104,21 @@ variable "tls_certificate_arn" {
   description = "The ARN of the TLS certificate"
   type = string
 }
+
+# Secrets Manager Secret ARN for DB credentials
+variable "db_secret_arn" {
+  description = "The ARN of the Secrets Manager secret for DB credentials"
+  type = string
+}
+
+# Secrets Manager Parameter for S3 bucket
+variable "s3_parameter" {
+  description = "The name of the Secrets Manager parameter for S3 bucket"
+  type = string
+}
+
+# Secrets Manager Parameter for Redis endpoint
+variable "redis_parameter" {
+  description = "The name of the Secrets Manager parameter for Redis endpoint"
+  type = string
+}

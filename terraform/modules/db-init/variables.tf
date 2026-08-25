@@ -1,4 +1,5 @@
 # AWS Region
+###############################################################
 variable "region" {
   type        = string
   description = "The target AWS region for deployment"
@@ -11,6 +12,7 @@ variable "region" {
 }
 
 # Project Environment
+###############################################################
 variable "environment" {
   type        = string
   description = "Project environment developmet/production"
@@ -19,26 +21,13 @@ variable "environment" {
     error_message = "The environment variable must be exactly 'development' or 'production'."
   }
 }
-
 # Project Name
+###############################################################
 variable "project_name" {
   description = "Name of the project"
   type        = string
 }
 
-# Common Tags
 variable "common_tags" {
   type = map(string)
-}
-
-# VPC ID
-variable "vpc_id" {
-  type        = string
-  description = "VPC ID"
-}
-
-# S3 Bucket Name
-variable "app_bucket" {
-  description = "Name of the S3 bucket to store the website data"
-  type = string
 }

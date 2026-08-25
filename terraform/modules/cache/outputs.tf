@@ -1,4 +1,5 @@
 # Publish Redis URL
-output "redis_url" {
-    value = "rediss://${aws_elasticache_replication_group.redis_cluster.primary_endpoint_address}:${aws_elasticache_replication_group.redis_cluster.port}"
+output "redis_endpoint" {
+    description = "Redis endpoint"
+    value = aws_elasticache_replication_group.redis_cluster.primary_endpoint_address
 }

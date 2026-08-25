@@ -95,8 +95,8 @@ resource "aws_vpc_endpoint" "s3_vpc_endpoint" {
     })
 }
 
-# Create Interface VPC endpoint for SSM
-resource "aws_vpc_endpoint" "ssm_vpc_endpoint" {
+# Create Interface VPC endpoint for SSM and other services
+resource "aws_vpc_endpoint" "interface_vpc_endpoint" {
     vpc_id              = aws_vpc.main_vpc.id
     for_each = local.interface_endpoints
     service_name        = each.value

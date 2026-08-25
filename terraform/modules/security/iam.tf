@@ -3,15 +3,22 @@ data "aws_iam_policy_document" "s3_access_document" {
   statement {
     effect = "Allow"
     actions = [
-      "s3:GetObject",
-      "s3:PutObject",
-      "s3:DeleteObject",
       "s3:ListBucket",
-      "s3:GetBucketLocation",
+      "s3:GetBucketLocation"
     ]
     resources = [
-      "arn:aws:s3:::${var.store_bucket_name}",
-      "arn:aws:s3:::${var.store_bucket_name}/*",
+      "arn:aws:s3:::${var.app_bucket}"
+    ]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:GetObject",
+      "s3:PutObject",
+      "s3:DeleteObject"
+    ]
+    resources = [
+      "arn:aws:s3:::${var.app_bucket}/*"
     ]
   }
 }

@@ -31,11 +31,12 @@ variable "common_tags" {
 }
 
 # Redis URL
-variable "redis_url" {
+variable "redis_endpoint" {
     type = string
 }
 
-# Golden AMI ID
-variable "golden_ami_id" {
+# App Bucket
+variable "app_bucket" {
     type = string
+    description = "S3 bucket name for WordPress application"
 }

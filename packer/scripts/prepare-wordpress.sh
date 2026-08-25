@@ -28,7 +28,7 @@ log "Updating operating system"
 apt-get update
 apt-get upgrade -y
 
-log "Installing Nginx, PHP-FPM and required PHP extensions"
+log "Installing Nginx, PHP-FPM and required PHP extensions and other dependencies"
 
 apt-get install -y \
     nginx \
@@ -37,6 +37,7 @@ apt-get install -y \
     ca-certificates \
     gnupg \
     lsb-release \
+    jq \
     software-properties-common \
     php${PHP_VERSION} \
     php${PHP_VERSION}-fpm \

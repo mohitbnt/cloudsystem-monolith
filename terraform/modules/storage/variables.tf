@@ -32,7 +32,8 @@ variable "common_tags" {
   type = map(string)
 }
 
-variable "store_bucket_name" {
-  description = "Name of the S3 bucket to store the website data"
-  type = string
+# Domain Name for the application
+variable "domain_name" {
+  description = "Domain name for the application"
+  type        = string
 }
