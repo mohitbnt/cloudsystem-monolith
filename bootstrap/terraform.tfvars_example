@@ -1,5 +1,5 @@
 region           = "ap-south-1"
-project          = "cloud-medusa-monolith"
+project          = "cloudsystem-monolith"
 bucket_name      = "repo-1338375073-tfstate"
 
 # Github repo path for OIDC, syntax- "username@owner_id/repository@repo_id"

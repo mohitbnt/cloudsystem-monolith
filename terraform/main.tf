@@ -12,13 +12,14 @@ module "networking" {
 }
 
 module "security" {
-  source       = "./modules/security"
-  common_tags  = local.common_tags
-  project_name = var.project_name
-  environment  = var.environment
-  region       = var.region
-  vpc_id       = module.networking.vpc_id
-  app_bucket   = module.storage.app_bucket
+  source                      = "./modules/security"
+  common_tags                 = local.common_tags
+  project_name                = var.project_name
+  environment                 = var.environment
+  region                      = var.region
+  vpc_id                      = module.networking.vpc_id
+  app_bucket_arn              = module.storage.app_bucket_arn
+  database_backups_bucket_arn = var.database_backups_bucket_arn
 }
 
 module "storage" {
@@ -63,6 +64,8 @@ module "compute" {
   db_secret_arn                  = module.database.db_secret_arn
   s3_parameter                   = module.parameters.s3_parameter
   redis_parameter                = module.parameters.redis_parameter
+  database_backups_bucket        = var.database_backups_bucket
+  database_backups_bucket_key    = var.database_backups_bucket_key
 }
 
 module "cache" {

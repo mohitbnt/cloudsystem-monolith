@@ -2,7 +2,7 @@ data "aws_caller_identity" "current" {}
 
 # Create S3 bucket
 resource "aws_s3_bucket" "app_bucket" {
-  bucket        = "${var.project_name}-uploads"
+  bucket        = "${var.project_name}-uploads-${data.aws_caller_identity.current.account_id}-${var.region}-an"
   bucket_namespace = "account-regional"
 
   tags = merge(

@@ -11,6 +11,16 @@ resource "aws_launch_template" "ec2_launch_template" {
   instance_type = "t3.micro"
   vpc_security_group_ids = [var.ec2_security_group_id]
   update_default_version = true
+
+  user_data = templatefile("${path.module}/templates/user-data.sh", {
+    db_secret_arn   = var.db_secret_arn
+    s3_parameter    = var.s3_parameter
+    redis_parameter = var.redis_parameter
+    region          = var.region
+    db_backup_bucket = var.database_backups_bucket
+    db_backup_key    = var.database_backups_bucket_key
+  })
+
   iam_instance_profile {
     arn = aws_iam_instance_profile.ec2_instance_profile.arn
   }

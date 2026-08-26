@@ -42,3 +42,7 @@ cache_config = {
   auotmatic_failover_enabled = false
   multi_az_enabled           = false
 }
+
+database_backups_bucket     = "database-backups-533317135122-ap-south-1-an"
+database_backups_bucket_arn = "arn:aws:s3:::database-backups-533317135122-ap-south-1-an"
+database_backups_bucket_key = "wordpress/wordpress_db.sql.gz"

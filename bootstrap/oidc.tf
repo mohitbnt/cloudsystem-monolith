@@ -22,9 +22,9 @@ data "aws_iam_policy_document" "github_actions_trust" {
     }
 
     condition {
-        test     = "StringEquals"
-        variable = "token.actions.githubusercontent.com:sub"
-        values   = ["repo:${var.github_repo_path}:ref:${var.github_branch}"]
+      test     = "StringEquals"
+      variable = "token.actions.githubusercontent.com:sub"
+      values   = ["repo:${var.github_repo_path}:ref:${var.github_branch}"]
     }
   }
 }

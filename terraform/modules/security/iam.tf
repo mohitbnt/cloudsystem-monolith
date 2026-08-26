@@ -7,7 +7,8 @@ data "aws_iam_policy_document" "s3_access_document" {
       "s3:GetBucketLocation"
     ]
     resources = [
-      "arn:aws:s3:::${var.app_bucket}"
+      "${var.app_bucket_arn}",
+      "${var.database_backups_bucket_arn}"
     ]
   }
   statement {
@@ -18,7 +19,8 @@ data "aws_iam_policy_document" "s3_access_document" {
       "s3:DeleteObject"
     ]
     resources = [
-      "arn:aws:s3:::${var.app_bucket}/*"
+      "${var.app_bucket_arn}/*",
+      "${var.database_backups_bucket_arn}/wordpress/*"
     ]
   }
 }

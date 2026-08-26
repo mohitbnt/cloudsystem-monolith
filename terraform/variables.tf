@@ -127,4 +127,19 @@ variable "cache_config" {
     auotmatic_failover_enabled = bool
     multi_az_enabled           = bool
   })
-} 
+}
+
+# Database backup bucket name
+variable "database_backups_bucket" {
+  type = string
+}
+
+# Database backup bucket arn
+variable "database_backups_bucket_arn" {
+  type = string
+}
+
+# Database backup bucket key
+variable "database_backups_bucket_key" {
+  type = string
+}

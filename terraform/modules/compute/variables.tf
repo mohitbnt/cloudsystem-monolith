@@ -122,3 +122,13 @@ variable "redis_parameter" {
   description = "The name of the Secrets Manager parameter for Redis endpoint"
   type = string
 }
+
+# Database backup bucket name
+variable "database_backups_bucket" {
+  type = string
+}
+
+# Database backup bucket key
+variable "database_backups_bucket_key" {
+  type = string
+}

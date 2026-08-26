@@ -9,7 +9,7 @@ variable "region" {
 variable "project" {
   type        = string
   description = "Project name"
-  default     = "cloud-medusa-monolith"
+  default     = "cloudsystem-monolith"
 }
 
 # Bucket name

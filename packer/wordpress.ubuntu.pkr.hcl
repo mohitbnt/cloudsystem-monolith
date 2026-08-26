@@ -17,7 +17,7 @@ variable "instance_type" {
   default = "t3.micro"
 }
 
-variable "wordpress_artifact" {
+variable "application_artifact" {
   type        = string
   description = "Path to the WordPress application tar.gz artifact."
 }
@@ -32,7 +32,7 @@ locals {
 }
 
 source "amazon-ebs" "golden-ami" {
-  ami_name      = "cloudsystem-wordpress-${local.timestamp}"
+  ami_name      = "cloudsystem-golden-ami-${local.timestamp}"
   instance_type = var.instance_type
   region        = var.region
   ssh_username  = "ubuntu"
@@ -67,7 +67,7 @@ source "amazon-ebs" "golden-ami" {
   }
 
   tags = {
-    Name         = "cloudsystem-wordpress-${local.timestamp}"
+    Name         = "cloudsystem-golden-ami-${local.timestamp}"
     Project      = "cloudsystem"
     Application  = "wordpress"
     Version      = var.app_version
@@ -78,23 +78,23 @@ source "amazon-ebs" "golden-ami" {
 }
 
 build {
-  name    = "cloudsystem-wordpress"
+  name    = "cloudsystem-golden-ami"
   sources = ["source.amazon-ebs.golden-ami"]
 
   provisioner "file" {
-    source      = var.wordpress_artifact
+    source      = var.applictaion_artifact
     destination = "/tmp/wordpress-cloudsystem.tar.gz"
   }
 
   provisioner "file" {
-    source      = "scripts/prepare-wordpress.sh"
-    destination = "/tmp/prepare-wordpress.sh"
+    source      = "scripts/prepare-ami_name.sh"
+    destination = "/tmp/prepare-ami.sh"
   }
 
   provisioner "shell" {
     inline = [
-      "chmod +x /tmp/prepare-wordpress.sh",
-      "sudo WORDPRESS_ARTIFACT=/tmp/wordpress-cloudsystem.tar.gz /tmp/prepare-wordpress.sh"
+      "chmod +x /tmp/prepare-ami.sh",
+      "sudo APPLICATION_ARTIFACT=/tmp/wordpress-cloudsystem.tar.gz /tmp/prepare-ami.sh"
     ]
   }
 
@@ -117,7 +117,7 @@ build {
 
   provisioner "shell" {
     inline = [
-      "sudo rm -f /tmp/wordpress-cloudsystem.tar.gz /tmp/prepare-wordpress.sh"
+      "sudo rm -f /tmp/wordpress-cloudsystem.tar.gz /tmp/prepare-ami.sh"
     ]
   }
 }

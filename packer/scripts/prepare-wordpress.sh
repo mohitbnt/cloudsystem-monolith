@@ -38,6 +38,8 @@ apt-get install -y \
     gnupg \
     lsb-release \
     jq \
+    mariadb-client \
+    gzip \
     software-properties-common \
     php${PHP_VERSION} \
     php${PHP_VERSION}-fpm \

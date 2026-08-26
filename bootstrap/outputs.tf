@@ -7,3 +7,11 @@ output "bucket_name" {
 output "oidc_role_arn" {
   value = aws_iam_role.github_actions_role.arn
 }
+
+output "database_backups_bucket" {
+  value = aws_s3_bucket.database_backups.bucket
+}
+
+output "database_backups_bucket_arn" {
+  value = aws_s3_bucket.database_backups.arn
+}
