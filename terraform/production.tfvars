@@ -1,15 +1,19 @@
 # AWS Region
-region = "ap-south-1"
+#region = "ap-south-1"
 
-environment = "production"
+#environment = "production"
 
 project_name = "cm"
 
-domain_name = "cloudsystemonline.com"
+#cloudflare_api_token = ""
+#cloudflare_zone_id   = ""
+domain_name          = "cloudsystemonline.com"
 
 vpc_cidr             = "10.0.0.0/16"
 public_subnet_cidrs  = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
 private_subnet_cidrs = ["10.0.21.0/24", "10.0.22.0/24", "10.0.23.0/24"]
+
+#golden_ami_id = "ami-07e5ce642bbc48c0d"
 
 app_instance_config = {
   instance_type             = "t3.micro"
@@ -44,6 +48,6 @@ cache_config = {
   multi_az_enabled           = false
 }
 
-database_backups_bucket     = "database-backups-533317135122-ap-south-1-an"
-database_backups_bucket_arn = "arn:aws:s3:::database-backups-533317135122-ap-south-1-an"
-database_backups_bucket_key = "wordpress/wordpress_db.sql.gz"
+# artifacts_bucket     = "artificats-533317135122-ap-south-1-an"
+# artifacts_bucket_arn = "arn:aws:s3:::artificats-533317135122-ap-south-1-an"
+db_backup_key_file   = "wordpress/wordpress_db.sql.gz"
