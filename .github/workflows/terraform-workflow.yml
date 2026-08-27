@@ -2,6 +2,9 @@
 name: Terraform Workflow
 
 on:
+  push:
+    branches:
+
   workflow_dispatch:
 
 permissions:
@@ -48,13 +51,8 @@ jobs:
         id: terraform-plan
         working-directory: ./terraform
         run: |
-          # Variables are automatically injected via env block above
-          terraform plan -var-file="${{ vars.ENVIRONMENT }}.tfvars" -out=plan.out
-          terraform show -json plan.out > plan.json
+          set -euo pipefail
+          echo "Environment: ${{ vars.ENVIRONMENT }}"
+          echo "Golden AMI: $TF_VAR_golden_ami_id"
+          echo "Artifacts bucket: $TF_VAR_artifacts_bucket"
 
-      - name: Terraform Apply
-        id: terraform-apply
-        working-directory: ./terraform
-        run: |
-          # Only the plan file and auto-approve are needed here
-          terraform apply -auto-approve plan.out
