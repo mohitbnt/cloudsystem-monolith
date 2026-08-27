@@ -56,3 +56,4 @@ jobs:
           echo "Golden AMI: $TF_VAR_golden_ami_id"
           echo "Artifacts bucket: $TF_VAR_artifacts_bucket"
 
+          terraform plan -var-file="${{ vars.ENVIRONMENT }}.tfvars" -out=plan.out
