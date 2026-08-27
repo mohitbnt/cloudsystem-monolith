@@ -105,7 +105,7 @@ jobs:
             wordpress.ubuntu.pkr.hcl | tee build.log
 
           ami_id="$(
-            awk -F, '$1=="artifact" && $3=="id" {print $4}' build.log \
+            awk -F, '$3=="artifact" && $5=="id" {print $6}' build.log \
               | tail -n 1 \
               | cut -d: -f2
           )"
