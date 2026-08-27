@@ -1,9 +1,4 @@
-# AWS Region
-region = "ap-south-1"
-
-environment = "development"
-
-project_name = "cm"
+project_name = "cm-dev"
 
 domain_name = "dev.cloudsystemonline.com"
 
@@ -13,7 +8,7 @@ private_subnet_cidrs = ["10.0.31.0/24", "10.0.32.0/24", "10.0.33.0/24"]
 
 app_instance_config = {
   instance_type             = "t3.micro"
-  root_volume_size          = 8
+  root_volume_size          = 15
   root_volume_type          = "gp3"
   root_volume_encrypted     = true
   desired_capacity          = 2
@@ -43,6 +38,4 @@ cache_config = {
   multi_az_enabled           = false
 }
 
-database_backups_bucket     = "database-backups-533317135122-ap-south-1-an"
-database_backups_bucket_arn = "arn:aws:s3:::database-backups-533317135122-ap-south-1-an"
 database_backups_bucket_key = "wordpress/wordpress_db.sql.gz"
