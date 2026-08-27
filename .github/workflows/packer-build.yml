@@ -1,11 +1,6 @@
 name: Packer Golden Image Build
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'artifacts/*.tar.gz'
   workflow_dispatch:
 
 permissions:
@@ -31,26 +26,47 @@ jobs:
       - name: Find latest WordPress artifact
         id: artifact
         shell: bash
+        env:
+          ARTIFACT_BUCKET: ${{ vars.ARTIFACT_BUCKET }}
         run: |
           set -euo pipefail
 
-          artifact="$(find artifacts -maxdepth 1 -type f \
-            -name 'wordpress-*-cloudsystem.tar.gz' \
-            -printf '%f\n' | sort -V | tail -n 1)"
+          echo "Searching for WordPress artifacts..."
+
+          artifact="$(
+            aws s3 ls "s3://${ARTIFACT_BUCKET}/code_backup/" \
+              | awk '{print $4}' \
+              | grep -E '^wordpress-[0-9].*-cloudsystem\.tar\.gz$' \
+              | sort -V \
+              | tail -n 1
+          )"
 
           if [[ -z "$artifact" ]]; then
-            echo "No WordPress artifact found."
+            echo "No WordPress artifact found in S3."
             exit 1
           fi
 
           version="${artifact#wordpress-}"
           version="${version%-cloudsystem.tar.gz}"
 
-          echo "artifact=../artifacts/$artifact" >> "$GITHUB_OUTPUT"
+          echo "Selected artifact : $artifact"
+          echo "WordPress version  : $version"
+
+          echo "artifact=$artifact" >> "$GITHUB_OUTPUT"
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
-          echo "Selected artifact: $artifact"
-          echo "WordPress version: $version"
+      - name: Download WordPress artifact
+        env:
+          ARTIFACT_BUCKET: ${{ vars.ARTIFACT_BUCKET }}
+          ARTIFACT_KEY: ${{ steps.artifact.outputs.artifact }}
+        run: |
+          set -euo pipefail
+
+          aws s3 cp \
+            "s3://${ARTIFACT_BUCKET}/code_backup/${ARTIFACT_KEY}" \
+            "./wordpress-cloudsystem.tar.gz"
+
+          ls -lh ./wordpress-cloudsystem.tar.gz
 
       - name: Setup Packer
         uses: hashicorp/setup-packer@v3
@@ -59,7 +75,8 @@ jobs:
 
       - name: Packer Init
         working-directory: ./packer
-        run: packer init wordpress.ubuntu.pkr.hcl
+        run: |
+          packer init wordpress.ubuntu.pkr.hcl
 
       - name: Packer Validate
         working-directory: ./packer
@@ -68,7 +85,7 @@ jobs:
             -var "region=${{ vars.AWS_REGION }}" \
             -var "instance_type=${{ vars.PACKER_INSTANCE_TYPE }}" \
             -var "app_version=${{ steps.artifact.outputs.version }}" \
-            -var "wordpress_artifact=${{ steps.artifact.outputs.artifact }}" \
+            -var "application_artifact=../wordpress-cloudsystem.tar.gz" \
             wordpress.ubuntu.pkr.hcl
 
       - name: Build Golden AMI
@@ -84,10 +101,14 @@ jobs:
             -var "region=${{ vars.AWS_REGION }}" \
             -var "instance_type=${{ vars.PACKER_INSTANCE_TYPE }}" \
             -var "app_version=${{ steps.artifact.outputs.version }}" \
-            -var "wordpress_artifact=${{ steps.artifact.outputs.artifact }}" \
+            -var "application_artifact=../wordpress-cloudsystem.tar.gz" \
             wordpress.ubuntu.pkr.hcl | tee build.log
 
-          ami_id="$(awk -F, '$1=="artifact" && $3=="id" {print $4}' build.log | tail -n 1 | cut -d: -f2)"
+          ami_id="$(
+            awk -F, '$1=="artifact" && $3=="id" {print $4}' build.log \
+              | tail -n 1 \
+              | cut -d: -f2
+          )"
 
           if [[ -z "$ami_id" ]]; then
             echo "Failed to extract AMI ID from Packer output."

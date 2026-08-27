@@ -35,25 +35,27 @@ resource "aws_s3_bucket_public_access_block" "block_public_access" {
   restrict_public_buckets = true
 }
 
-# Create S3 bucket for database backup storage
-resource "aws_s3_bucket" "database_backups" {
-  bucket           = "database-backups-${data.aws_caller_identity.current.account_id}-${var.region}-an"
+
+
+# Create S3 bucket for artifacts and database dump storage
+resource "aws_s3_bucket" "artificats_bucket" {
+  bucket           = "artificats-${data.aws_caller_identity.current.account_id}-${var.region}-an"
   bucket_namespace = "account-regional"
   tags = {
-    Name    = "database-backups-${var.project}"
+    Name    = "artificats-${var.project}"
     Project = var.project
   }
 }
 
-resource "aws_s3_bucket_versioning" "versioning-database-backups" {
-  bucket = aws_s3_bucket.database_backups.id
+resource "aws_s3_bucket_versioning" "versioning-artificats_bucket" {
+  bucket = aws_s3_bucket.artificats_bucket.id
   versioning_configuration {
     status = "Enabled"
   }
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "encryption_config-database-backups" {
-  bucket = aws_s3_bucket.database_backups.id
+  bucket = aws_s3_bucket.artificats_bucket.id
 
   rule {
     apply_server_side_encryption_by_default {
@@ -63,7 +65,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "encryption_config
 }
 
 resource "aws_s3_bucket_public_access_block" "block_public_access-database-backups" {
-  bucket = aws_s3_bucket.database_backups.id
+  bucket = aws_s3_bucket.artificats_bucket.id
 
   block_public_acls       = true
   block_public_policy     = true

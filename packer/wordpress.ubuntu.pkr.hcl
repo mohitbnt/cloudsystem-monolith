@@ -43,6 +43,7 @@ source "amazon-ebs" "golden-ami" {
       root-device-type    = "ebs"
       virtualization-type = "hvm"
     }
+
     most_recent = true
     owners      = ["099720109477"]
   }
@@ -69,7 +70,7 @@ source "amazon-ebs" "golden-ami" {
   tags = {
     Name         = "cloudsystem-golden-ami-${local.timestamp}"
     Project      = "cloudsystem"
-    Application  = "wordpress"
+    Application = "wordpress"
     Version      = var.app_version
     OS           = "ubuntu-24.04"
     Architecture = "x86_64"
@@ -82,12 +83,12 @@ build {
   sources = ["source.amazon-ebs.golden-ami"]
 
   provisioner "file" {
-    source      = var.applictaion_artifact
+    source      = var.application_artifact
     destination = "/tmp/wordpress-cloudsystem.tar.gz"
   }
 
   provisioner "file" {
-    source      = "scripts/prepare-ami_name.sh"
+    source      = "scripts/prepare-ami.sh"
     destination = "/tmp/prepare-ami.sh"
   }
 
@@ -110,7 +111,7 @@ build {
       "sudo test -f /var/www/cloudsystem/wp-content/plugins/redis-cache/redis-cache.php",
       "sudo test -d /var/www/cloudsystem/wp-content/plugins/amazon-s3-and-cloudfront",
       "sudo test ! -f /var/www/cloudsystem/wp-config.php",
-      "test -z \"$(sudo find /var/www/cloudsystem/wp-content/uploads -mindepth 1 -print -quit)\"",
+      "test -z \"$(sudo find /var/www/cloudsystem/wp-content/uploads -mindepth 1 -print -quit)",
       "echo 'Golden AMI validation passed.'"
     ]
   }

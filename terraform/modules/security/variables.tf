@@ -43,8 +43,8 @@ variable "app_bucket_arn" {
   type = string
 }
 
-# Database backup bucket arn
-variable "database_backups_bucket_arn" {
-  description = "Database backup bucket arn"
-  type        = string
+# Artifacts Bucket ARN
+variable "artifacts_bucket_arn" {
+  description = "Name of the S3 bucket to store the website data"
+  type = string
 }

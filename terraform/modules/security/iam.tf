@@ -8,7 +8,7 @@ data "aws_iam_policy_document" "s3_access_document" {
     ]
     resources = [
       "${var.app_bucket_arn}",
-      "${var.database_backups_bucket_arn}"
+      "${var.artifacts_bucket_arn}"
     ]
   }
   statement {
@@ -20,7 +20,7 @@ data "aws_iam_policy_document" "s3_access_document" {
     ]
     resources = [
       "${var.app_bucket_arn}/*",
-      "${var.database_backups_bucket_arn}/wordpress/*"
+      "${var.artifacts_bucket_arn}/database_dumps/*"
     ]
   }
 }

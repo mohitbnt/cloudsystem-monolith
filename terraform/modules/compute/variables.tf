@@ -123,12 +123,12 @@ variable "redis_parameter" {
   type = string
 }
 
-# Database backup bucket name
-variable "database_backups_bucket" {
+# Artifacts bucket name
+variable "artifacts_bucket" {
   type = string
 }
 
 # Database backup bucket key
-variable "database_backups_bucket_key" {
+variable "db_backup_key_file" {
   type = string
 }

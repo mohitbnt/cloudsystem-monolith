@@ -17,8 +17,8 @@ resource "aws_launch_template" "ec2_launch_template" {
     s3_parameter    = var.s3_parameter
     redis_parameter = var.redis_parameter
     region          = var.region
-    db_backup_bucket = var.database_backups_bucket
-    db_backup_key    = var.database_backups_bucket_key
+    db_backup_bucket = var.artifacts_bucket
+    db_backup_key    = var.db_backup_key_file
   })
 
   iam_instance_profile {
