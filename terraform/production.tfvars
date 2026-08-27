@@ -7,7 +7,7 @@ project_name = "cm"
 
 #cloudflare_api_token = ""
 #cloudflare_zone_id   = ""
-domain_name          = "cloudsystemonline.com"
+domain_name = "cloudsystemonline.com"
 
 vpc_cidr             = "10.0.0.0/16"
 public_subnet_cidrs  = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
@@ -50,4 +50,4 @@ cache_config = {
 
 # artifacts_bucket     = "artificats-533317135122-ap-south-1-an"
 # artifacts_bucket_arn = "arn:aws:s3:::artificats-533317135122-ap-south-1-an"
-db_backup_key_file   = "wordpress/wordpress_db.sql.gz"
+db_backup_key_file = "wordpress/wordpress_db.sql.gz"

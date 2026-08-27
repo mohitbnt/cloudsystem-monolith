@@ -81,14 +81,14 @@ log "Preparing WordPress application"
 
 mkdir -p "$WORDPRESS_ROOT"
 
-if [[ -n "${WORDPRESS_ARTIFACT:-}" ]]; then
-    [[ -f "$WORDPRESS_ARTIFACT" ]] || \
-        fail "WordPress artifact not found: $WORDPRESS_ARTIFACT"
+if [[ -n "${APPLICATION_ARTIFACT:-}" ]]; then
+    [[ -f "$APPLICATION_ARTIFACT" ]] || \
+        fail "WordPress artifact not found: $APPLICATION_ARTIFACT"
 
     rm -rf /tmp/cloudsystem-wordpress-extract
     mkdir -p /tmp/cloudsystem-wordpress-extract
 
-    tar -xzf "$WORDPRESS_ARTIFACT" \
+    tar -xzf "$APPLICATION_ARTIFACT" \
         -C /tmp/cloudsystem-wordpress-extract
 
     [[ -f /tmp/cloudsystem-wordpress-extract/wp-settings.php ]] || \
@@ -99,7 +99,7 @@ if [[ -n "${WORDPRESS_ARTIFACT:-}" ]]; then
 
     rm -rf /tmp/cloudsystem-wordpress-extract
 else
-    echo "WORDPRESS_ARTIFACT is not set; skipping WordPress extraction."
+    echo "APPLICATION_ARTIFACT is not set; skipping WordPress extraction."
 fi
 
 mkdir -p "$WORDPRESS_ROOT/wp-content/uploads"

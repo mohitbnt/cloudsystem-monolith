@@ -12,13 +12,13 @@ module "networking" {
 }
 
 module "security" {
-  source                = "./modules/security"
-  common_tags           = local.common_tags
-  project_name          = var.project_name
-  environment           = var.environment
-  region                = var.region
-  vpc_id                = module.networking.vpc_id
-  app_bucket_arn        = module.storage.app_bucket_arn
+  source               = "./modules/security"
+  common_tags          = local.common_tags
+  project_name         = var.project_name
+  environment          = var.environment
+  region               = var.region
+  vpc_id               = module.networking.vpc_id
+  app_bucket_arn       = module.storage.app_bucket_arn
   artifacts_bucket_arn = var.artifacts_bucket_arn
 }
 
