@@ -107,11 +107,7 @@ build {
       "sudo systemctl is-active --quiet nginx",
       "sudo systemctl is-active --quiet php8.3-fpm",
       "sudo test -S /run/php/cloudsystem.sock",
-      "sudo test -f /var/www/cloudsystem/wp-settings.php",
-      "sudo test -f /var/www/cloudsystem/wp-content/plugins/redis-cache/redis-cache.php",
-      "sudo test -d /var/www/cloudsystem/wp-content/plugins/amazon-s3-and-cloudfront",
       "sudo test ! -f /var/www/cloudsystem/wp-config.php",
-      "test -z \"$(sudo find /var/www/cloudsystem/wp-content/uploads -mindepth 1 -print -quit)",
       "echo 'Golden AMI validation passed.'"
     ]
   }

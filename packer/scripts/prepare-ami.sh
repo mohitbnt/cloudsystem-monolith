@@ -68,18 +68,6 @@ fi
 
 aws --version
 
-log "Installing WP-CLI"
-
-if ! command -v wp >/dev/null 2>&1; then
-    curl -fsSL \
-        https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
-        -o /usr/local/bin/wp
-
-    chmod +x /usr/local/bin/wp
-fi
-
-wp --info
-
 log "Installing SSM Agent"
 
 if ! snap list amazon-ssm-agent >/dev/null 2>&1; then
@@ -201,12 +189,6 @@ log "Validating required components"
 
 php -m | grep -qi '^redis$' || fail "PHP Redis extension is not installed."
 
-[[ -d "$WORDPRESS_ROOT/wp-content/plugins/redis-cache" ]] \
-    && echo "Redis Object Cache plugin: present"
-
-[[ -d "$WORDPRESS_ROOT/wp-content/plugins/amazon-s3-and-cloudfront" ]] \
-    && echo "WP Offload Media plugin: present"
-
 [[ -S "$PHP_FPM_SOCKET" ]] || \
     fail "PHP-FPM socket not found: $PHP_FPM_SOCKET"
 
@@ -244,6 +226,4 @@ echo "PHP-FPM pool   : $PHP_FPM_POOL"
 echo "PHP-FPM socket : $PHP_FPM_SOCKET"
 echo "Nginx          : $(systemctl is-active nginx)"
 echo "PHP-FPM        : $(systemctl is-active "$PHP_FPM_SERVICE")"
-echo "AWS CLI        : $(aws --version 2>&1)"
-echo "WP-CLI         : $(wp --info | awk -F': ' '/WP-CLI version/ {print $2}')"
 echo
