@@ -2,9 +2,6 @@
 name: Terraform Workflow
 
 on:
-  push:
-    branches:
-
   workflow_dispatch:
 
 permissions:
