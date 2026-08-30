@@ -2,10 +2,11 @@
 set -Eeuo pipefail
 
 WORDPRESS_ROOT="/var/www/cloudsystem"
-WP_CONFIG_TEMPLATE="$${WORDPRESS_ROOT}/wp-config.php.template"
-WP_CONFIG="$${WORDPRESS_ROOT}/wp-config.php"
+WP_CONFIG_TEMPLATE="$WORDPRESS_ROOT/wp-config.php.template"
+WP_CONFIG="$WORDPRESS_ROOT/wp-config.php"
 PHP_FPM_SERVICE="php8.3-fpm"
 
+# Terraform Injected Variables
 DB_SECRET_ARN="${db_secret_arn}"
 S3_PARAMETER="${s3_parameter}"
 REDIS_PARAMETER="${redis_parameter}"
@@ -44,18 +45,18 @@ export AWS_DEFAULT_REGION="$AWS_REGION"
 
 log "Fetching MariaDB credentials from Secrets Manager"
 
-SECRET_JSON="$$(aws secretsmanager get-secret-value \
+SECRET_JSON="$(aws secretsmanager get-secret-value \
     --secret-id "$DB_SECRET_ARN" \
     --query SecretString \
     --output text)"
 
 [[ -n "$SECRET_JSON" ]] || fail "MariaDB secret returned empty SecretString."
 
-DB_HOST="$$(jq -r '.host // empty' <<< "$SECRET_JSON")"
-DB_PORT="$$(jq -r '.port // 3306' <<< "$SECRET_JSON")"
-DB_NAME="$$(jq -r '.database // empty' <<< "$SECRET_JSON")"
-DB_USER="$$(jq -r '.username // empty' <<< "$SECRET_JSON")"
-DB_PASSWORD="$$(jq -r '.password // empty' <<< "$SECRET_JSON")"
+DB_HOST="$(jq -r '.host // empty' <<< "$SECRET_JSON")"
+DB_PORT="$(jq -r '.port // 3306' <<< "$SECRET_JSON")"
+DB_NAME="$(jq -r '.database // empty' <<< "$SECRET_JSON")"
+DB_USER="$(jq -r '.username // empty' <<< "$SECRET_JSON")"
+DB_PASSWORD="$(jq -r '.password // empty' <<< "$SECRET_JSON")"
 
 [[ -n "$DB_HOST" ]] || fail "DB host missing from secret."
 [[ -n "$DB_NAME" ]] || fail "DB database missing from secret."
@@ -64,7 +65,7 @@ DB_PASSWORD="$$(jq -r '.password // empty' <<< "$SECRET_JSON")"
 
 log "Fetching WordPress S3 bucket from Parameter Store"
 
-S3_BUCKET="$$(aws ssm get-parameter \
+S3_BUCKET="$(aws ssm get-parameter \
     --name "$S3_PARAMETER" \
     --query Parameter.Value \
     --output text)"
@@ -73,7 +74,7 @@ S3_BUCKET="$$(aws ssm get-parameter \
 
 log "Fetching Redis endpoint from Parameter Store"
 
-REDIS_HOST="$$(aws ssm get-parameter \
+REDIS_HOST="$(aws ssm get-parameter \
     --name "$REDIS_PARAMETER" \
     --query Parameter.Value \
     --output text)"
@@ -91,7 +92,7 @@ sed -i \
     -e "s|CHANGE_ME_DB_NAME|$DB_NAME|g" \
     -e "s|CHANGE_ME_DB_USER|$DB_USER|g" \
     -e "s|CHANGE_ME_DB_PASSWORD|$DB_PASSWORD|g" \
-    -e "s|CHANGE_ME_DB_HOST|$${DB_HOST}:$${DB_PORT}|g" \
+    -e "s|CHANGE_ME_DB_HOST|$DB_HOST:$DB_PORT|g" \
     -e "s|CHANGE_ME_BUCKET_NAME|$S3_BUCKET|g" \
     -e "s|CHANGE_ME_REDIS_HOST|$REDIS_HOST|g" \
     "$WP_CONFIG"
@@ -107,14 +108,14 @@ log "Checking database initialization state"
 
 export MYSQL_PWD="$DB_PASSWORD"
 
-WP_OPTIONS_EXISTS="$$(
+WP_OPTIONS_EXISTS="$(
     mariadb \
         --host="$DB_HOST" \
         --port="$DB_PORT" \
         --user="$DB_USER" \
         "$DB_NAME" \
         -Nse "SELECT COUNT(*) FROM information_schema.tables
-              WHERE table_schema='$${DB_NAME}'
+              WHERE table_schema='$DB_NAME'
               AND table_name='wp_options';"
 )"
 
@@ -125,13 +126,13 @@ if [[ "$WP_OPTIONS_EXISTS" == "1" ]]; then
 else
     log "Acquiring database initialization lock"
 
-    LOCK_RESULT="$$(
+    LOCK_RESULT="$(
         mariadb \
             --host="$DB_HOST" \
             --port="$DB_PORT" \
             --user="$DB_USER" \
             "$DB_NAME" \
-            -Nse "SELECT GET_LOCK('$${DB_INIT_LOCK_NAME}', $${DB_INIT_LOCK_TIMEOUT});"
+            -Nse "SELECT GET_LOCK('$DB_INIT_LOCK_NAME', $DB_INIT_LOCK_TIMEOUT);"
     )"
 
     if [[ "$LOCK_RESULT" != "1" ]]; then
@@ -145,7 +146,7 @@ else
                 --port="$DB_PORT" \
                 --user="$DB_USER" \
                 "$DB_NAME" \
-                -Nse "SELECT RELEASE_LOCK('$${DB_INIT_LOCK_NAME}');" \
+                -Nse "SELECT RELEASE_LOCK('$DB_INIT_LOCK_NAME');" \
                 >/dev/null 2>&1 || true
         }
 
@@ -153,14 +154,14 @@ else
 
         log "Rechecking database after acquiring lock"
 
-        WP_OPTIONS_EXISTS="$$(
+        WP_OPTIONS_EXISTS="$(
             mariadb \
                 --host="$DB_HOST" \
                 --port="$DB_PORT" \
                 --user="$DB_USER" \
                 "$DB_NAME" \
                 -Nse "SELECT COUNT(*) FROM information_schema.tables
-                      WHERE table_schema='$${DB_NAME}'
+                      WHERE table_schema='$DB_NAME'
                       AND table_name='wp_options';"
         )"
 
@@ -170,7 +171,7 @@ else
             log "Downloading database backup"
 
             aws s3 cp \
-                "s3://$${DB_BACKUP_BUCKET}/$${DB_BACKUP_KEY}" \
+                "s3://$DB_BACKUP_BUCKET/$DB_BACKUP_KEY" \
                 "$DB_BACKUP_FILE"
 
             [[ -s "$DB_BACKUP_FILE" ]] || \
@@ -187,7 +188,7 @@ else
 
             log "Verifying database import"
 
-            TABLE_COUNT="$$(
+            TABLE_COUNT="$(
                 mariadb \
                     --host="$DB_HOST" \
                     --port="$DB_PORT" \
@@ -195,13 +196,13 @@ else
                     "$DB_NAME" \
                     -Nse "SELECT COUNT(*)
                           FROM information_schema.tables
-                          WHERE table_schema='$${DB_NAME}';"
+                          WHERE table_schema='$DB_NAME';"
             )"
 
             [[ "$TABLE_COUNT" -gt 0 ]] || \
                 fail "Database import completed but no tables were found."
 
-            SITEURL_EXISTS="$$(
+            SITEURL_EXISTS="$(
                 mariadb \
                     --host="$DB_HOST" \
                     --port="$DB_PORT" \

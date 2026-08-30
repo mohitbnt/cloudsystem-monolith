@@ -70,7 +70,7 @@ resource "aws_db_instance" "db_instance" {
 resource "aws_secretsmanager_secret" "db_secret" {
   name        = "${var.project_name}-${var.environment}/mariadb/credentials"
   description = "MariaDB credentials for WordPress"
-
+  recovery_window_in_days = 0
   tags = merge(
     var.common_tags,
     {

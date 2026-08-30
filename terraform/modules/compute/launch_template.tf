@@ -12,7 +12,7 @@ resource "aws_launch_template" "ec2_launch_template" {
   vpc_security_group_ids = [var.ec2_security_group_id]
   update_default_version = true
 
-  user_data = base64encode(templatefile("${path.module}/templates/user-data.sh", {
+  user_data = base64encode(templatefile("${path.module}/templates/user-data.tftpl", {
     db_secret_arn   = var.db_secret_arn
     s3_parameter    = var.s3_parameter
     redis_parameter = var.redis_parameter

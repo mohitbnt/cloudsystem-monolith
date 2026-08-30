@@ -1,6 +1,6 @@
 project_name = "cm"
 
-domain_name          = "cloudsystemonline.com"
+domain_name = "cloudsystemonline.com"
 
 vpc_cidr             = "10.0.0.0/16"
 public_subnet_cidrs  = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
@@ -40,4 +40,4 @@ cache_config = {
   multi_az_enabled           = false
 }
 
-db_backup_key_file   = "wordpress/wordpress_db.sql.gz"
+db_backup_key_file = "wordpress/wordpress_db.sql.gz"
