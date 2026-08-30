@@ -50,11 +50,11 @@ resource "aws_vpc_security_group_egress_rule" "alb_egress" {
 }
 
 # Create Security Group Rules for RDS instances
-resource "aws_vpc_security_group_ingress_rule" "postgres_ingress" {
+resource "aws_vpc_security_group_ingress_rule" "rds_ingress" {
     security_group_id = aws_security_group.rds_instances.id
 
-    for_each    = local.postgres_ingress
-    description = "Allow inbound traffic to Postgres"
+    for_each    = local.rds_ingress
+    description = "Allow inbound traffic to RDS"
     from_port   = each.value.port
     to_port     = each.value.port
     ip_protocol    = each.value.ip_protocol

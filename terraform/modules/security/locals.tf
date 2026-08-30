@@ -49,10 +49,10 @@ locals {
             refereced_security_group_id = aws_security_group.ec2_instances.id
         }
     }
-    postgres_ingress = {
-        psql-port = {
-            description = "Allow inbound traffic to Postgres"
-            port   = 5432
+    rds_ingress = {
+        mysql-port = {
+            description = "Allow inbound traffic to MySQL"
+            port   = 3306
             ip_protocol = "tcp"
             use_cidr   = false
             cidr_block = "null"

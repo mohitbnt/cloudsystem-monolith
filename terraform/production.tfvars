@@ -40,4 +40,4 @@ cache_config = {
   multi_az_enabled           = false
 }
 
-db_backup_key_file = "wordpress/wordpress_db.sql.gz"
+db_backup_key_file = "database_dumps/wordpress_db.sql.gz"
