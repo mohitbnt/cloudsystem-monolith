@@ -113,9 +113,6 @@ cloudsystem-monolith/
 │   └── scripts/
 │       └── prepare-ami.sh
 │
-├── artifacts/
-│   └── .gitkeep
-│
 └── terraform/
     ├── main.tf
     ├── locals.tf
