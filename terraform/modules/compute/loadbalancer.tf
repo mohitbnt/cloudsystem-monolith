@@ -60,6 +60,12 @@ resource "aws_lb_listener" "alb_http_listener" {
       status_code = "HTTP_301"
     }
   }
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "${var.project_name}-${var.environment}-alb-http-listener"
+    }
+  )
 }
 
 # Create ALB listener for HTTPS
@@ -74,4 +80,10 @@ resource "aws_lb_listener" "alb_https_listener" {
     type             = "forward"
     target_group_arn = aws_lb_target_group.alb_target_group.arn
   }
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "${var.project_name}-${var.environment}-alb-https-listener"
+    }
+  )
 }
