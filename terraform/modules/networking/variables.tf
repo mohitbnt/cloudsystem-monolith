@@ -1,61 +1,72 @@
-variable "region" {
-  type        = string
-  description = "The target AWS region for deployment"
+# =============================================================================
+# Common Module Configuration
+# =============================================================================
 
-  validation {
-    # Regex checks for standard regional patterns like "us-east-1" or "ap-southeast-2"
-    condition     = can(regex("^[a-z]{2}-[a-z]+-[0-9]$", var.region))
-    error_message = "The aws_region value must be a valid AWS region identifier (e.g., ap-south-1, us-east-1)."
-  }
+variable "project_name" {
+  type        = string
+  description = "Project name used in resource names and tags."
 }
 
 variable "environment" {
   type        = string
-  description = "Project environment developmet/production"
+  description = "Deployment environment."
+
   validation {
     condition     = contains(["development", "production"], var.environment)
     error_message = "The environment variable must be exactly 'development' or 'production'."
   }
 }
 
-variable "project_name" {
-  description = "Name of the project"
+variable "region" {
   type        = string
+  description = "AWS region where networking resources are deployed."
+
+  validation {
+    condition     = can(regex("^[a-z]{2}-[a-z]+-[0-9]$", var.region))
+    error_message = "The region must be a valid AWS region identifier, for example ap-south-1 or us-east-1."
+  }
 }
 
 variable "common_tags" {
-  type = map(string)
+  type        = map(string)
+  description = "Common tags applied to networking resources."
 }
 
+# =============================================================================
+# Network Configuration
+# =============================================================================
+
 variable "vpc_cidr" {
-  type = string
+  type        = string
+  description = "IPv4 CIDR block for the VPC."
+
   validation {
     condition     = can(cidrhost(var.vpc_cidr, 0))
-    error_message = "The vpc cidr must be valid IPv4 CIDR block."
+    error_message = "The vpc_cidr must be a valid IPv4 CIDR block."
   }
 }
 
 variable "public_subnet_cidrs" {
   type        = list(string)
-  description = "Explicit list of CIDR blocks for the public subnets"
+  description = "CIDR blocks for the public subnets."
+
   validation {
     condition     = alltrue([for cidr in var.public_subnet_cidrs : can(cidrhost(cidr, 0))])
-    error_message = "All elements in the public_subnet_cidrs list must be valid IPv4 CIDR blocks."
+    error_message = "All public_subnet_cidrs values must be valid IPv4 CIDR blocks."
   }
-
 }
 
 variable "private_subnet_cidrs" {
   type        = list(string)
-  description = "Explicit list of CIDR blocks for the private subnets"
+  description = "CIDR blocks for the private subnets."
+
   validation {
-    # Loops through the list to ensure every single entry is a valid CIDR
     condition     = alltrue([for cidr in var.private_subnet_cidrs : can(cidrhost(cidr, 0))])
-    error_message = "All elements in the public_subnet_cidrs list must be valid IPv4 CIDR blocks."
+    error_message = "All private_subnet_cidrs values must be valid IPv4 CIDR blocks."
   }
 }
 
 variable "vpc_endpoint_sg_id" {
   type        = string
-  description = "Security group ID for VPC endpoint"
+  description = "Security group ID used by the VPC interface endpoints."
 }

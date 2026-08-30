@@ -4,7 +4,7 @@
 
 variable "project_name" {
   type        = string
-  description = "Project name used in cache resource names and tags."
+  description = "Project name used in SSM Parameter Store paths and tags."
 }
 
 variable "environment" {
@@ -19,7 +19,7 @@ variable "environment" {
 
 variable "region" {
   type        = string
-  description = "AWS region where the Redis cluster is deployed."
+  description = "AWS region where the SSM parameters are created."
 
   validation {
     condition     = can(regex("^[a-z]{2}-[a-z]+-[0-9]$", var.region))
@@ -29,34 +29,19 @@ variable "region" {
 
 variable "common_tags" {
   type        = map(string)
-  description = "Common tags applied to cache resources."
+  description = "Common tags applied to SSM parameters."
 }
 
 # =============================================================================
-# Network Configuration
+# Runtime Endpoints
 # =============================================================================
 
-variable "private_subnet_ids" {
-  type        = list(string)
-  description = "Private subnet IDs used by the Redis subnet group."
-}
-
-variable "redis_elasticache_sg_id" {
+variable "redis_endpoint" {
   type        = string
-  description = "Security group ID attached to the Redis cluster."
+  description = "Redis endpoint stored in Parameter Store for EC2 bootstrap."
 }
 
-# =============================================================================
-# Cache Configuration
-# =============================================================================
-
-variable "cache_config" {
-  type = object({
-    engine_version             = string
-    node_type                  = string
-    auotmatic_failover_enabled = bool
-    multi_az_enabled           = bool
-  })
-
-  description = "Configuration for the ElastiCache Redis cluster."
+variable "app_bucket" {
+  type        = string
+  description = "Application uploads S3 bucket name stored in Parameter Store."
 }

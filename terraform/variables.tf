@@ -1,88 +1,62 @@
-# AWS Region
-variable "region" {
-  type        = string
-  description = "The target AWS region for deployment"
+# =============================================================================
+# Common Project Configuration
+# =============================================================================
 
-  validation {
-    # Regex checks for standard regional patterns like "us-east-1" or "ap-southeast-2"
-    condition     = can(regex("^[a-z]{2}-[a-z]+-[0-9]$", var.region))
-    error_message = "The aws_region value must be a valid AWS region identifier (e.g., ap-south-1, us-east-1)."
-  }
+variable "project_name" {
+  type        = string
+  description = "Short project name used as the prefix for AWS resource names and tags."
 }
 
-# Project Environment
 variable "environment" {
   type        = string
-  description = "Project environment developmet/production"
+  description = "Deployment environment for the application."
+
   validation {
     condition     = contains(["development", "production"], var.environment)
     error_message = "The environment variable must be exactly 'development' or 'production'."
   }
 }
-# Project Name
-variable "project_name" {
-  description = "Name of the project"
+
+variable "region" {
   type        = string
+  description = "AWS region where the infrastructure is deployed."
+
+  validation {
+    condition     = can(regex("^[a-z]{2}-[a-z]+-[0-9]$", var.region))
+    error_message = "The region must be a valid AWS region identifier, for example ap-south-1 or us-east-1."
+  }
 }
 
-# Cloudflare API Token
-variable "cloudflare_api_token" {
-  description = "Cloudflare API Token"
-  type        = string
-}
-
-# Cloudflare Zone ID
-variable "cloudflare_zone_id" {
-  description = "Cloudflare Zone ID"
-  type        = string
-}
-
-# Domain Name for the application
 variable "domain_name" {
-  description = "Domain name for the application"
   type        = string
+  description = "Primary DNS name used by the WordPress application."
 }
 
-#  Variable for Golden AMI ID
+# =============================================================================
+# External Services
+# =============================================================================
+
+variable "cloudflare_api_token" {
+  type        = string
+  description = "Cloudflare API token used by Terraform to manage DNS records."
+  sensitive   = true
+}
+
+variable "cloudflare_zone_id" {
+  type        = string
+  description = "Cloudflare Zone ID containing the application's DNS records."
+}
+
+# =============================================================================
+# Application / Compute
+# =============================================================================
+
 variable "golden_ami_id" {
-  type = string
+  type        = string
+  description = "AMI ID of the WordPress Golden AMI used by the EC2 Auto Scaling Group."
 }
 
-# VPC and Subnets
-variable "vpc_cidr" {
-  type = string
-  validation {
-    condition     = can(cidrhost(var.vpc_cidr, 0))
-    error_message = "The vpc cidr must be valid IPv4 CIDR block."
-  }
-}
-
-# Public Subnet CIDRs
-variable "public_subnet_cidrs" {
-  type        = list(string)
-  description = "Explicit list of CIDR blocks for the public subnets"
-  validation {
-    condition     = alltrue([for cidr in var.public_subnet_cidrs : can(cidrhost(cidr, 0))])
-    error_message = "All elements in the public_subnet_cidrs list must be valid IPv4 CIDR blocks."
-  }
-
-}
-
-# Private Subnet CIDRs
-variable "private_subnet_cidrs" {
-  type        = list(string)
-  description = "Explicit list of CIDR blocks for the private subnets"
-  validation {
-    # Loops through the list to ensure every single entry is a valid CIDR
-    condition     = alltrue([for cidr in var.private_subnet_cidrs : can(cidrhost(cidr, 0))])
-    error_message = "All elements in the public_subnet_cidrs list must be valid IPv4 CIDR blocks."
-  }
-}
-
-# Application Instance Configuration
 variable "app_instance_config" {
-  description = "Configuration for the application compute fleet."
-
   type = object({
     instance_type = string
 
@@ -100,46 +74,97 @@ variable "app_instance_config" {
     protect_scale_in   = bool
     termination_policy = list(string)
   })
+
+  description = "Configuration for the WordPress EC2 Auto Scaling Group and instance storage."
 }
 
-# Database Instance Configuration
-variable "db_instance_config" {
-  description = "Configuration for the application compute fleet."
+# =============================================================================
+# Database
+# =============================================================================
 
+variable "db_instance_config" {
   type = object({
-    family            = string
     allocated_storage = number
+    family            = string
     engine_version    = string
     instance_class    = string
     db_name           = string
     username          = string
     multi_az          = bool
   })
+
+  description = "Configuration for the Amazon RDS MariaDB instance."
 }
 
-# Cache Configuration
-variable "cache_config" {
-  description = "Configuration for the application compute fleet."
+variable "db_backup_key_file" {
+  type        = string
+  description = "S3 object key for the WordPress database dump stored in the private artifacts bucket."
+}
 
+# =============================================================================
+# Cache
+# =============================================================================
+
+variable "cache_config" {
   type = object({
     engine_version             = string
     node_type                  = string
     auotmatic_failover_enabled = bool
     multi_az_enabled           = bool
   })
+
+  description = "Configuration for the Amazon ElastiCache for Redis deployment."
 }
 
-# Artifacts bucket name
+# =============================================================================
+# Artifact Storage
+# =============================================================================
+
 variable "artifacts_bucket" {
-  type = string
+  type        = string
+  description = "Private S3 bucket containing AMI artifacts and database dumps."
 }
 
-# Artifacts bucket arn
 variable "artifacts_bucket_arn" {
-  type = string
+  type        = string
+  description = "ARN of the private S3 artifacts bucket."
 }
 
-# Database backup bucket key
-variable "db_backup_key_file" {
-  type = string
+# =============================================================================
+# Network Configuration
+# =============================================================================
+
+variable "vpc_cidr" {
+  type        = string
+  description = "IPv4 CIDR block for the VPC."
+
+  validation {
+    condition     = can(cidrhost(var.vpc_cidr, 0))
+    error_message = "The vpc_cidr must be a valid IPv4 CIDR block."
+  }
+}
+
+variable "public_subnet_cidrs" {
+  type        = list(string)
+  description = "CIDR blocks for the public subnets."
+
+  validation {
+    condition     = alltrue([for cidr in var.public_subnet_cidrs : can(cidrhost(cidr, 0))])
+    error_message = "All public_subnet_cidrs values must be valid IPv4 CIDR blocks."
+  }
+}
+
+variable "private_subnet_cidrs" {
+  type        = list(string)
+  description = "CIDR blocks for the private subnets."
+
+  validation {
+    condition     = alltrue([for cidr in var.private_subnet_cidrs : can(cidrhost(cidr, 0))])
+    error_message = "All private_subnet_cidrs values must be valid IPv4 CIDR blocks."
+  }
+}
+
+variable "vpc_endpoint_sg_id" {
+  type        = string
+  description = "Security group ID used by the VPC interface endpoints."
 }

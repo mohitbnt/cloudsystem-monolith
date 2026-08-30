@@ -1,10 +1,21 @@
-project_name = "cm-dev"
+# =============================================================================
+# Environment / Application
+# =============================================================================
 
-domain_name = "dev.cloudsystemonline.com"
+project_name = "cm-dev"
+domain_name  = "dev.cloudsystemonline.com"
+
+# =============================================================================
+# Networking
+# =============================================================================
 
 vpc_cidr             = "10.0.0.0/16"
 public_subnet_cidrs  = ["10.0.11.0/24", "10.0.12.0/24", "10.0.13.0/24"]
 private_subnet_cidrs = ["10.0.31.0/24", "10.0.32.0/24", "10.0.33.0/24"]
+
+# =============================================================================
+# Compute
+# =============================================================================
 
 app_instance_config = {
   instance_type             = "t3.micro"
@@ -17,10 +28,12 @@ app_instance_config = {
   health_check_grace_period = 300
   health_check_type         = "ELB"
   protect_scale_in          = false
-  termination_policy = [
-    "OldestLaunchTemplate"
-  ]
+  termination_policy        = ["OldestLaunchTemplate"]
 }
+
+# =============================================================================
+# Database
+# =============================================================================
 
 db_instance_config = {
   allocated_storage = 20
@@ -31,11 +44,16 @@ db_instance_config = {
   username          = "wordpress"
   multi_az          = false
 }
+
+db_backup_key_file = "database_dumps/wordpress_db.sql.gz"
+
+# =============================================================================
+# Cache
+# =============================================================================
+
 cache_config = {
   engine_version             = "7.1"
   node_type                  = "cache.t4g.micro"
   auotmatic_failover_enabled = false
   multi_az_enabled           = false
 }
-
-database_backups_bucket_key = "wordpress/wordpress_db.sql.gz"

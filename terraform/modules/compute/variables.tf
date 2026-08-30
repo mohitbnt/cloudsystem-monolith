@@ -1,85 +1,100 @@
-variable "region" {
-  type        = string
-  description = "The target AWS region for deployment"
+# =============================================================================
+# Common Module Configuration
+# =============================================================================
 
-  validation {
-    # Regex checks for standard regional patterns like "us-east-1" or "ap-southeast-2"
-    condition     = can(regex("^[a-z]{2}-[a-z]+-[0-9]$", var.region))
-    error_message = "The aws_region value must be a valid AWS region identifier (e.g., ap-south-1, us-east-1)."
-  }
+variable "project_name" {
+  type        = string
+  description = "Project name used in compute resource names and tags."
 }
 
 variable "environment" {
   type        = string
-  description = "Project environment developmet/production"
+  description = "Deployment environment."
+
   validation {
     condition     = contains(["development", "production"], var.environment)
     error_message = "The environment variable must be exactly 'development' or 'production'."
   }
 }
 
-variable "project_name" {
-  description = "Name of the project"
+variable "region" {
   type        = string
+  description = "AWS region where the compute resources are deployed."
+
+  validation {
+    condition     = can(regex("^[a-z]{2}-[a-z]+-[0-9]$", var.region))
+    error_message = "The region must be a valid AWS region identifier, for example ap-south-1 or us-east-1."
+  }
 }
 
 variable "common_tags" {
-  type = map(string)
+  type        = map(string)
+  description = "Common tags applied to compute resources."
 }
+
+# =============================================================================
+# Network Configuration
+# =============================================================================
 
 variable "vpc_id" {
   type        = string
-  description = "VPC ID"
+  description = "VPC ID containing the compute resources."
 }
 
 variable "public_subnet_ids" {
   type        = list(string)
-  description = "List of public subnet IDs"
+  description = "Public subnet IDs used by the Application Load Balancer."
 }
 
 variable "private_subnet_ids" {
   type        = list(string)
-  description = "List of private subnet IDs"
+  description = "Private subnet IDs used by the EC2 Auto Scaling Group."
 }
 
-# Variable for Golden AMI ID
-variable "golden_ami_id" {
-    type = string
-}
-
-variable "vpc_endpoint_sg_id" {
-  type        = string
-  description = "Security group ID for VPC endpoint"
-}
+# =============================================================================
+# Security / IAM
+# =============================================================================
 
 variable "ec2_role_name" {
   type        = string
-  description = "IAM role name for EC2 instances"
+  description = "IAM role name attached to EC2 instances."
 }
 
 variable "ec2_security_group_id" {
   type        = string
-  description = "Security group ID for EC2 instances"
+  description = "Security group ID attached to EC2 instances."
 }
 
 variable "alb_security_group_id" {
   type        = string
-  description = "Security group ID for ALB"
+  description = "Security group ID attached to the Application Load Balancer."
 }
 
 variable "rds_security_group_id" {
   type        = string
-  description = "Security group ID for RDS instances"
+  description = "RDS security group ID used by compute dependencies."
+}
+
+variable "vpc_endpoint_sg_id" {
+  type        = string
+  description = "Security group ID for VPC interface endpoints."
 }
 
 variable "vpc_endpoint_security_group_id" {
   type        = string
-  description = "Security group ID for VPC endpoint"
+  description = "VPC endpoint security group ID retained for compute module compatibility."
+}
+
+# =============================================================================
+# Application Configuration
+# =============================================================================
+
+variable "golden_ami_id" {
+  type        = string
+  description = "AMI ID of the WordPress Golden AMI."
 }
 
 variable "app_instance_config" {
-  description = "Configuration for the application compute fleet."
-
   type = object({
     instance_type = string
 
@@ -97,38 +112,40 @@ variable "app_instance_config" {
     protect_scale_in   = bool
     termination_policy = list(string)
   })
+
+  description = "EC2 Auto Scaling Group and root volume configuration."
 }
 
-# TLS Certificate ARN
 variable "tls_certificate_arn" {
-  description = "The ARN of the TLS certificate"
-  type = string
+  type        = string
+  description = "ARN of the ACM certificate used by the HTTPS ALB listener."
 }
 
-# Secrets Manager Secret ARN for DB credentials
+# =============================================================================
+# Runtime Configuration
+# =============================================================================
+
 variable "db_secret_arn" {
-  description = "The ARN of the Secrets Manager secret for DB credentials"
-  type = string
+  type        = string
+  description = "ARN of the Secrets Manager secret containing MariaDB credentials."
 }
 
-# Secrets Manager Parameter for S3 bucket
 variable "s3_parameter" {
-  description = "The name of the Secrets Manager parameter for S3 bucket"
-  type = string
+  type        = string
+  description = "SSM Parameter Store name containing the application S3 bucket name."
 }
 
-# Secrets Manager Parameter for Redis endpoint
 variable "redis_parameter" {
-  description = "The name of the Secrets Manager parameter for Redis endpoint"
-  type = string
+  type        = string
+  description = "SSM Parameter Store name containing the Redis endpoint."
 }
 
-# Artifacts bucket name
 variable "artifacts_bucket" {
-  type = string
+  type        = string
+  description = "Private S3 artifacts bucket containing the database dump."
 }
 
-# Database backup bucket key
 variable "db_backup_key_file" {
-  type = string
+  type        = string
+  description = "S3 object key of the database dump consumed by EC2 user-data."
 }

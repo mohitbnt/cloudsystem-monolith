@@ -1,46 +1,52 @@
-variable "region" {
-  type        = string
-  description = "The target AWS region for deployment"
+# =============================================================================
+# Common Module Configuration
+# =============================================================================
 
-  validation {
-    # Regex checks for standard regional patterns like "us-east-1" or "ap-southeast-2"
-    condition     = can(regex("^[a-z]{2}-[a-z]+-[0-9]$", var.region))
-    error_message = "The aws_region value must be a valid AWS region identifier (e.g., ap-south-1, us-east-1)."
-  }
+variable "project_name" {
+  type        = string
+  description = "Project name used in DNS and certificate resource names."
 }
 
 variable "environment" {
   type        = string
-  description = "Project environment developmet/production"
+  description = "Deployment environment."
+
   validation {
     condition     = contains(["development", "production"], var.environment)
     error_message = "The environment variable must be exactly 'development' or 'production'."
   }
 }
 
-variable "project_name" {
-  description = "Name of the project"
+variable "region" {
   type        = string
+  description = "AWS region where the ACM certificate is created."
+
+  validation {
+    condition     = can(regex("^[a-z]{2}-[a-z]+-[0-9]$", var.region))
+    error_message = "The region must be a valid AWS region identifier, for example ap-south-1 or us-east-1."
+  }
 }
 
 variable "common_tags" {
-  type = map(string)
+  type        = map(string)
+  description = "Common tags applied to DNS and certificate resources."
 }
 
-# Cloudflare Zone ID
+# =============================================================================
+# DNS / TLS Configuration
+# =============================================================================
+
 variable "cloudflare_zone_id" {
-  description = "Cloudflare Zone ID"
-  type = string
+  type        = string
+  description = "Cloudflare Zone ID where DNS validation and application records are created."
 }
 
-# Domain Name for the application
 variable "domain_name" {
-  description = "Domain name for the application"
-  type = string
+  type        = string
+  description = "Primary application domain used for the ACM certificate and DNS records."
 }
 
-# ALB DNS Name
 variable "alb_dns_name" {
-    description = "The DNS name of the ALB"
-    type = string
+  type        = string
+  description = "DNS name of the Application Load Balancer targeted by the application DNS record."
 }

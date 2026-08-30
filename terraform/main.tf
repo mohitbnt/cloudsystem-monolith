@@ -80,7 +80,7 @@ module "cache" {
 }
 
 module "parameters" {
-  source         = "./modules/paramters"
+  source         = "./modules/parameters"
   common_tags    = local.common_tags
   region         = var.region
   environment    = var.environment
