@@ -102,7 +102,7 @@ resource "aws_vpc_endpoint" "interface_vpc_endpoint" {
     service_name        = each.value
     vpc_endpoint_type   = "Interface"
     security_group_ids  = [var.vpc_endpoint_sg_id]
-    subnet_ids          = aws_subnet.public_subnets[*].id
+    subnet_ids          = aws_subnet.private_subnets[*].id
     private_dns_enabled = true
 
     tags = merge(var.common_tags, {
